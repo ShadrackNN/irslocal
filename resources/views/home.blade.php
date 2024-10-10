@@ -39,7 +39,12 @@
                                     <li class="nav-item" role="presentation">
                                         <a class="nav-link" id="taxes-paid-tab" data-bs-toggle="tab" href="#taxes-paid" role="tab" aria-controls="taxes-paid" aria-selected="false">Taxes Paid</a>
                                     </li>
+                                    {{-- New Tax Calculation Tab --}}
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link" id="calculation-tab" data-bs-toggle="tab" href="#calculation" role="tab" aria-controls="calculation" aria-selected="false">Tax Calculation</a>
+                                    </li>
                                 </ul>
+
 
                                 <div class="tab-content mt-3" id="taxFilingTabsContent">
                                     {{-- Personal Information Tab --}}
@@ -115,6 +120,28 @@
                                             <a href="{{ route('tax.download_pdf') }}" class="btn btn-primary">Download PDF</a>
                                         </div>
                                     </div>
+
+                                    {{-- Tax Calculation Tab --}}
+                                    <div class="tab-pane fade" id="calculation" role="tabpanel" aria-labelledby="calculation-tab">
+                                        <h4>Tax Calculation</h4>
+                                        <div class="mb-3">
+                                            <label for="total-income" class="form-label">Total Income</label>
+                                            <input type="number" class="form-control" id="total-income" name="total_income" value="{{ ($taxInfo->w2_income ?? 0) + ($taxInfo->self_employment_income ?? 0) }}" readonly>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="total-deductions" class="form-label">Total Deductions</label>
+                                            <input type="number" class="form-control" id="total-deductions" name="total_deductions" value="{{ ($taxInfo->mortgage_interest ?? 0) + ($taxInfo->charitable_donations ?? 0) }}" readonly>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="taxable-income" class="form-label">Taxable Income</label>
+                                            <input type="number" class="form-control" id="taxable-income" name="taxable_income" value="{{ (($taxInfo->w2_income ?? 0) + ($taxInfo->self_employment_income ?? 0)) - (($taxInfo->mortgage_interest ?? 0) + ($taxInfo->charitable_donations ?? 0)) }}" readonly>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="estimated-tax" class="form-label">Estimated Tax</label>
+                                            <input type="number" class="form-control" id="estimated-tax" name="estimated_tax" value="{{ $estimatedTax }}" readonly>
+                                        </div>
+                                    </div>
+
                                 </div>
 
                                 {{-- Save Changes Button --}}
@@ -146,9 +173,9 @@
                                         <td>{{ $client->email }}</td>
                                         <td>{{ $client->tax_status }}</td>
                                         <td>
-                                            <a href="{{ route('admin.client_view', $client->id) }}" class="btn btn-info">View</a>
-                                            <a href="{{ route('admin.client_edit', $client->id) }}" class="btn btn-warning">Edit</a>
-                                            <a href="{{ route('admin.client_delete', $client->id) }}" class="btn btn-danger">Delete</a>
+                                            <a href="{{ route('home', $client->id) }}" class="btn btn-info">View</a>
+                                            <a href="{{ route('home', $client->id) }}" class="btn btn-warning">Edit</a>
+                                            <a href="{{ route('home', $client->id) }}" class="btn btn-danger">Delete</a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -178,5 +205,27 @@
                 prevTab.querySelector('.nav-link').click();
             }
         }
+
+        // Basic tax calculation based on 2023 tax brackets for single filers
+        function calculateTax(taxableIncome) {
+            let tax = 0;
+            if (taxableIncome <= 11000) {
+                tax = taxableIncome * 0.10;
+            } else if (taxableIncome <= 44725) {
+                tax = 1100 + (taxableIncome - 11000) * 0.12;
+            } else if (taxableIncome <= 95375) {
+                tax = 5147 + (taxableIncome - 44725) * 0.22;
+            } else if (taxableIncome <= 182100) {
+                tax = 16290 + (taxableIncome - 95375) * 0.24;
+            } else if (taxableIncome <= 231250) {
+                tax = 37104 + (taxableIncome - 182100) * 0.32;
+            } else if (taxableIncome <= 578125) {
+                tax = 52832 + (taxableIncome - 231250) * 0.35;
+            } else {
+                tax = 174238.75 + (taxableIncome - 578125) * 0.37;
+            }
+            return tax;
+        }
     </script>
+
 @endsection
