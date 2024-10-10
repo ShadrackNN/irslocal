@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Models\TaxInformation;
@@ -9,6 +10,15 @@ use Illuminate\Http\Response;
 
 class TaxController extends Controller
 {
+
+    public function create(): Response
+    {
+        // Fetch existing tax information for the authenticated user
+        $taxInfo = TaxInformation::where('user_id', auth()->id())->first();
+
+        return response()->view('tax.form', compact('taxInfo'));
+    }
+
     public function submit(Request $request): RedirectResponse
     {
         // Validation
@@ -27,32 +37,33 @@ class TaxController extends Controller
         ]);
 
         // Save the tax information
-        $taxInfo = TaxInformation::updateOrCreate(
-            ['user_id' => auth()->id()],
-            [
-                'name' => $request->input('name'),
-                'ssn' => $request->input('ssn'),
-                'address' => $request->input('address'),
-                'w2_income' => $request->input('w2_income'),
-                'self_employment_income' => $request->input('self_employment_income'),
-                'mortgage_interest' => $request->input('mortgage_interest'),
-                'charitable_donations' => $request->input('charitable_donations'),
-                'child_tax_credit' => $request->input('child_tax_credit'),
-                'education_credit' => $request->input('education_credit'),
-                'federal_tax_withheld' => $request->input('federal_tax_withheld'),
-                'state_tax_withheld' => $request->input('state_tax_withheld'),
-            ]
-        );
+        try {
+            TaxInformation::updateOrCreate(
+                ['user_id' => auth()->id()],
+                [
+                    'name' => $request->input('name'),
+                    'ssn' => $request->input('ssn'),
+                    'address' => $request->input('address'),
+                    'w2_income' => $request->input('w2_income'),
+                    'self_employment_income' => $request->input('self_employment_income'),
+                    'mortgage_interest' => $request->input('mortgage_interest'),
+                    'charitable_donations' => $request->input('charitable_donations'),
+                    'child_tax_credit' => $request->input('child_tax_credit'),
+                    'education_credit' => $request->input('education_credit'),
+                    'federal_tax_withheld' => $request->input('federal_tax_withheld'),
+                    'state_tax_withheld' => $request->input('state_tax_withheld'),
+                ]
+            );
 
-        // Redirect back with success message
-        return redirect()->back()->with('status', 'Tax information saved successfully!');
+            return redirect()->back()->with('status', 'Tax information saved successfully!');
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors('Failed to save tax information: ' . $e->getMessage());
+        }
     }
-
     public function downloadPdf(): Response
     {
         // Fetch the necessary data to be included in the PDF
-        // For example, assuming you have a model for tax filings
-        $data = []; // Fetch data relevant for the PDF
+        $data = TaxInformation::where('user_id', auth()->id())->firstOrFail();
 
         // Generate PDF
         $pdf = PDF::loadView('tax.pdf', compact('data'));
@@ -60,4 +71,5 @@ class TaxController extends Controller
         // Download the PDF file
         return $pdf->download('tax_filing.pdf');
     }
+
 }

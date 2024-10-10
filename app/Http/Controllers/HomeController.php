@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TaxInformation;
 use App\Models\User;
 use Illuminate\Contracts\Support\Renderable;
-use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -28,11 +26,15 @@ class HomeController extends Controller
         if (auth()->user()->role === 'admin') {
             // If the user is an admin, get all clients
             $clients = User::where('role', 'client')->get();
+
+            // Admin view doesn't need their own tax information, just client data
             return view('home', compact('clients'));
         }
 
-        // If the user is a client, just return the home view with their tax tabs
-        return view('home');
-    }
+        // If the user is a client, get their tax information
+        $taxInfo = TaxInformation::where('user_id', auth()->id())->first();
 
+        // Pass the client's tax information to the view
+        return view('home', compact('taxInfo'));
+    }
 }

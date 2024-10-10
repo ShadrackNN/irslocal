@@ -47,15 +47,15 @@
                                         <h4>Personal Information</h4>
                                         <div class="mb-3">
                                             <label for="name" class="form-label">Full Name</label>
-                                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" value="{{ old('name') }}">
+                                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" value="{{ old('name', $taxInfo->name ?? '') }}">
                                         </div>
                                         <div class="mb-3">
                                             <label for="ssn" class="form-label">Social Security Number (SSN)</label>
-                                            <input type="text" class="form-control" id="ssn" name="ssn" placeholder="Enter your SSN" value="{{ old('ssn') }}">
+                                            <input type="text" class="form-control" id="ssn" name="ssn" placeholder="Enter your SSN" value="{{ old('ssn', $taxInfo->ssn ?? '') }}">
                                         </div>
                                         <div class="mb-3">
                                             <label for="address" class="form-label">Address</label>
-                                            <input type="text" class="form-control" id="address" name="address" placeholder="Enter your address" value="{{ old('address') }}">
+                                            <input type="text" class="form-control" id="address" name="address" placeholder="Enter your address" value="{{ old('address', $taxInfo->address ?? '') }}">
                                         </div>
                                     </div>
 
@@ -64,11 +64,11 @@
                                         <h4>Income</h4>
                                         <div class="mb-3">
                                             <label for="w2-income" class="form-label">W-2 Income</label>
-                                            <input type="number" class="form-control" id="w2-income" name="w2_income" placeholder="Enter your W-2 income" value="{{ old('w2_income') }}">
+                                            <input type="number" class="form-control" id="w2-income" name="w2_income" placeholder="Enter your W-2 income" value="{{ old('w2_income', $taxInfo->w2_income ?? '') }}">
                                         </div>
                                         <div class="mb-3">
                                             <label for="self-employment-income" class="form-label">Self-Employment Income (1099)</label>
-                                            <input type="number" class="form-control" id="self-employment-income" name="self_employment_income" placeholder="Enter your 1099 income" value="{{ old('self_employment_income') }}">
+                                            <input type="number" class="form-control" id="self-employment-income" name="self_employment_income" placeholder="Enter your 1099 income" value="{{ old('self_employment_income', $taxInfo->self_employment_income ?? '') }}">
                                         </div>
                                     </div>
 
@@ -77,11 +77,11 @@
                                         <h4>Deductions</h4>
                                         <div class="mb-3">
                                             <label for="mortgage-interest" class="form-label">Mortgage Interest</label>
-                                            <input type="number" class="form-control" id="mortgage-interest" name="mortgage_interest" placeholder="Enter your mortgage interest" value="{{ old('mortgage_interest') }}">
+                                            <input type="number" class="form-control" id="mortgage-interest" name="mortgage_interest" placeholder="Enter your mortgage interest" value="{{ old('mortgage_interest', $taxInfo->mortgage_interest ?? '') }}">
                                         </div>
                                         <div class="mb-3">
                                             <label for="charitable-donations" class="form-label">Charitable Donations</label>
-                                            <input type="number" class="form-control" id="charitable-donations" name="charitable_donations" placeholder="Enter the amount of charitable donations" value="{{ old('charitable_donations') }}">
+                                            <input type="number" class="form-control" id="charitable-donations" name="charitable_donations" placeholder="Enter the amount of charitable donations" value="{{ old('charitable_donations', $taxInfo->charitable_donations ?? '') }}">
                                         </div>
                                     </div>
 
@@ -90,11 +90,11 @@
                                         <h4>Credits</h4>
                                         <div class="mb-3">
                                             <label for="child-tax-credit" class="form-label">Child Tax Credit</label>
-                                            <input type="number" class="form-control" id="child-tax-credit" name="child_tax_credit" placeholder="Enter the amount for Child Tax Credit" value="{{ old('child_tax_credit') }}">
+                                            <input type="number" class="form-control" id="child-tax-credit" name="child_tax_credit" placeholder="Enter the amount for Child Tax Credit" value="{{ old('child_tax_credit', $taxInfo->child_tax_credit ?? '') }}">
                                         </div>
                                         <div class="mb-3">
                                             <label for="education-credit" class="form-label">Education Credit</label>
-                                            <input type="number" class="form-control" id="education-credit" name="education_credit" placeholder="Enter the amount for Education Credit" value="{{ old('education_credit') }}">
+                                            <input type="number" class="form-control" id="education-credit" name="education_credit" placeholder="Enter the amount for Education Credit" value="{{ old('education_credit', $taxInfo->education_credit ?? '') }}">
                                         </div>
                                     </div>
 
@@ -103,11 +103,11 @@
                                         <h4>Taxes Paid</h4>
                                         <div class="mb-3">
                                             <label for="federal-tax-withheld" class="form-label">Federal Tax Withheld</label>
-                                            <input type="number" class="form-control" id="federal-tax-withheld" name="federal_tax_withheld" placeholder="Enter the amount of federal tax withheld" value="{{ old('federal_tax_withheld') }}">
+                                            <input type="number" class="form-control" id="federal-tax-withheld" name="federal_tax_withheld" placeholder="Enter the amount of federal tax withheld" value="{{ old('federal_tax_withheld', $taxInfo->federal_tax_withheld ?? '') }}">
                                         </div>
                                         <div class="mb-3">
                                             <label for="state-tax-withheld" class="form-label">State Tax Withheld</label>
-                                            <input type="number" class="form-control" id="state-tax-withheld" name="state_tax_withheld" placeholder="Enter the amount of state tax withheld" value="{{ old('state_tax_withheld') }}">
+                                            <input type="number" class="form-control" id="state-tax-withheld" name="state_tax_withheld" placeholder="Enter the amount of state tax withheld" value="{{ old('state_tax_withheld', $taxInfo->state_tax_withheld ?? '') }}">
                                         </div>
 
                                         {{-- Download PDF Button (only on the last tab) --}}
@@ -140,13 +140,15 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @foreach ($clients as $client)
+                                @foreach($clients as $client)
                                     <tr>
                                         <td>{{ $client->name }}</td>
                                         <td>{{ $client->email }}</td>
                                         <td>{{ $client->tax_status }}</td>
                                         <td>
-                                            <a href="{{ route('client.show', $client->id) }}" class="btn btn-info">View Tax Details</a>
+                                            <a href="{{ route('admin.client_view', $client->id) }}" class="btn btn-info">View</a>
+                                            <a href="{{ route('admin.client_edit', $client->id) }}" class="btn btn-warning">Edit</a>
+                                            <a href="{{ route('admin.client_delete', $client->id) }}" class="btn btn-danger">Delete</a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -159,30 +161,21 @@
         </div>
     </div>
 
+    {{-- Script for tab navigation --}}
     <script>
         function nextTab() {
-            const activeTab = document.querySelector('.nav-tabs .active');
-            const nextTab = activeTab.closest('li').nextElementSibling;
+            var activeTab = document.querySelector('.nav-link.active');
+            var nextTab = activeTab.closest('li').nextElementSibling;
             if (nextTab) {
-                activeTab.classList.remove('active');
-                nextTab.querySelector('a').classList.add('active');
-                const activePane = document.querySelector('.tab-pane.show');
-                activePane.classList.remove('show', 'active');
-                const nextPaneId = nextTab.querySelector('a').getAttribute('href');
-                document.querySelector(nextPaneId).classList.add('show', 'active');
+                nextTab.querySelector('.nav-link').click();
             }
         }
 
         function prevTab() {
-            const activeTab = document.querySelector('.nav-tabs .active');
-            const prevTab = activeTab.closest('li').previousElementSibling;
+            var activeTab = document.querySelector('.nav-link.active');
+            var prevTab = activeTab.closest('li').previousElementSibling;
             if (prevTab) {
-                activeTab.classList.remove('active');
-                prevTab.querySelector('a').classList.add('active');
-                const activePane = document.querySelector('.tab-pane.show');
-                activePane.classList.remove('show', 'active');
-                const prevPaneId = prevTab.querySelector('a').getAttribute('href');
-                document.querySelector(prevPaneId).classList.add('show', 'active');
+                prevTab.querySelector('.nav-link').click();
             }
         }
     </script>
